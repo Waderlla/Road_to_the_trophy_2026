@@ -587,3 +587,9 @@ Projekt powstał jako połączenie analizy danych, modelowania statystycznego i 
 Chciałam pokazać, że dane piłkarskie można przedstawić nie tylko jako wyniki i tabele, ale jako dynamiczną historię zmieniających się szans.
 
 W trakcie turnieju każda drużyna ma swoją drogę do trofeum. Ta strona pokazuje, jak ta droga zmienia się dzień po dniu.
+
+## Zrzuty ekranu
+
+![Zrzut ekranu 1](docs/images/screen.jpeg)
+
+![Zrzut ekranu 2](docs/images/screen_1.jpeg)
