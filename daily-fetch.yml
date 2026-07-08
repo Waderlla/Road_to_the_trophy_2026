@@ -1,0 +1,48 @@
+name: Codzienne pobieranie danych MS 2026
+
+on:
+  schedule:
+    # co 4 godziny (0,4,8,12,16,20 UTC = 2,6,10,14,18,22 czasu polskiego)
+    - cron: "0 */4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    env:
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: Pobierz terminarz i wyniki
+        run: python scripts/02_fetch_fixtures.py
+
+      - name: Pobierz statystyki zakonczonych meczow
+        run: python scripts/03_fetch_match_stats.py
+
+      - name: Przelicz indeksy i sile druzyn
+        run: python scripts/05_calculate_strength.py
+
+      - name: Przelicz symulacje mistrzostwa
+        run: python scripts/07_simulate_tournament.py
+
+      - name: Wyeksportuj dane dla strony (JSON)
+        run: python scripts/08_export_json.py
+
+      - name: Zapisz wygenerowane pliki JSON do repozytorium
+        run: |
+          git config user.name "Waderlla"
+          git config user.email "olga.mironczuk93@gmail.com"
+          git add docs/data
+          git diff --cached --quiet && echo "Brak zmian w eksporcie." || git commit -m "Automatyczna aktualizacja danych"
+          git push
