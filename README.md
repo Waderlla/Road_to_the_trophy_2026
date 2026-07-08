@@ -587,3 +587,9 @@ The project was created as a combination of data analysis, statistical modeling,
 I wanted to show that football data can be presented not just as results and tables, but as a dynamic story of changing chances.
 
 During the tournament, every team has its own road to the trophy. This site shows how that road changes, day by day.
+
+## Screenshots
+
+![Screenshot 1](docs/images/screen.jpeg)
+
+![Screenshot 2](docs/images/screen_1.jpeg)
