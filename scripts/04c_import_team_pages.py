@@ -6,10 +6,7 @@ ma /coachs, ale wymaga api_team_id, ktorego nie mamy dla wszystkich druzyn).
 Kazda strona zespolu zawiera w danych PELNA tabele rankingu FIFA wszystkich
 druzyn na dany dzien (nie tylko wlasnej druzyny) - wiec wystarczy jeden plik,
 zeby zaktualizowac ranking wszystkich 48 druzyn na raz; przetwarzanie wielu
-plikow jest wiec nadmiarowe, ale nieszkodliwe (idempotentne).
-
-Obecny trener jest ustalany jako ostatni (chronologicznie najnowszy) wpis w
-coachHistory - FotMob nie oznacza "obecnego" trenera osobnym polem."""
+plikow jest wiec nadmiarowe, ale nieszkodliwe."""
 
 import json
 import re
