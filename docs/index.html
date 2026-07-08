@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Droga do Trofeum 2026</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-block">
+        <h1><img src="images/puchar.png" alt="" class="header-trophy-icon">Droga do Trofeum 2026</h1>
+        <p id="header-subtitle" class="subtitle">Wczytywanie...</p>
+      </div>
+
+      <a class="help-button" href="https://olgamironczuk.pl/droga-do-trofeum-mistrzostwa-swiata-w-pilce-noznej-2026/" target="_blank" rel="noopener">O projekcie</a>
+    </div>
+  </header>
+
+  <section class="timeline-section">
+    <div class="timeline-labels">
+      <span id="timeline-start-label"></span>
+      <span id="timeline-current-label" class="timeline-current-label"></span>
+      <span id="timeline-end-label"></span>
+    </div>
+    <div id="timeline-ticks" class="timeline-ticks"></div>
+  </section>
+
+  <div class="layout">
+    <main class="main-panel">
+      <section id="hero-cards" class="hero-cards"></section>
+      <section id="day-description" class="day-description"></section>
+
+      <section class="ranking-movers-layout">
+        <div class="ranking-panel glass-panel">
+          <h2>Szanse na mistrzostwo <span id="prediction-date-label"></span></h2>
+          <table class="ranking-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Drużyna</th>
+                <th>Szansa na mistrzostwo</th>
+                <th>Zmiana</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+          </table>
+          <div class="eliminated-panel">
+            <h3>Drużyny wyeliminowane</h3>
+            <div id="eliminated-list" class="eliminated-list"></div>
+          </div>
+        </div>
+
+        <div class="movers-panel">
+          <div class="stage-stepper-panel glass-panel">
+            <h3>Etapy turnieju</h3>
+            <div id="stage-stepper" class="stage-stepper"></div>
+          </div>
+          <div class="movers-up glass-panel">
+            <h3 id="movers-up-title">Największy wzrost</h3>
+            <ul id="movers-up-list"></ul>
+          </div>
+          <div class="movers-down glass-panel">
+            <h3 id="movers-down-title">Największy spadek</h3>
+            <ul id="movers-down-list"></ul>
+          </div>
+          <div class="split-bottom glass-panel">
+            <h2 id="reality-title">Wyniki dnia <span id="reality-date-label"></span></h2>
+            <div id="matches-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bracket-section glass-panel">
+        <h2>Drabinka pucharowa</h2>
+        <div id="bracket" class="bracket-columns"></div>
+      </section>
+
+      <section class="chart-section glass-panel">
+        <h2>Historia szans na mistrzostwo - dzisiejsze TOP 8</h2>
+        <canvas id="history-chart" height="90"></canvas>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-left">
+      <a href="https://kajodata.com" target="_blank" rel="noopener">
+        <img src="images/KajoData.png" alt="KajoData" class="footer-logo">
+      </a>
+      <img src="images/dataacolyte.png" alt="Data Acolyte" class="footer-logo">
+      <span>Projekt powstał w ramach konkursu Data Acolyte x KajoDataSpace #3 - Mistrzostwa Świata w Piłce Nożnej 2026</span>
+    </div>
+    <div class="footer-right">
+      <img src="images/logo_warkan.png" alt="Olga Mironczuk" class="footer-logo-personal">
+      <span>© 2026 Olga Mironczuk</span>
+    </div>
+  </footer>
+
+  <div id="team-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
