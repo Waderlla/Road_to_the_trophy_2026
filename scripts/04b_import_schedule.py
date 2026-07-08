@@ -2,11 +2,7 @@
 "fixtures" (lista WSZYSTKICH meczow, nie pojedynczy mecz jak w
 04_import_fotmob_html.py). To jedyne zrodlo prawdziwych dat/godzin dla
 przyszlych etapow (cwiercfinal, polfinal, finalu) - nawet zanim znane sa
-konkretne druzyny, FotMob juz zna dokladny termin kazdego slotu drabinki.
-
-Zapisz strone https://www.fotmob.com/pl/leagues/77/fixtures/world-cup
-(Ctrl+S) do data/fixtures_schedule/ i uruchom ten skrypt ponownie, zeby
-odswiezyc terminy w bazie."""
+konkretne druzyny, FotMob juz zna dokladny termin kazdego slotu drabinki."""
 
 import json
 import re
