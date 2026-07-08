@@ -8,8 +8,10 @@ Skrypt nie łączy się z API ani z bazą danych. Czyta tylko:
 - docs/data/calendar.json
 - docs/data/teams.json
 
-Wynik zapisuje do:
-- data/model_parameter_checks.md
+Wynik zapisuje do dwoch wersji jezykowych (ta sama tresc, te same policzone
+liczby - tlumaczenie jest tylko w warstwie tekstu, nie w obliczeniach):
+- data/model_parameter_checks.md (polski)
+- data/model_parameter_checks_EN.md (angielski)
 """
 
 from __future__ import annotations
@@ -23,7 +25,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CALENDAR_PATH = ROOT / "docs" / "data" / "calendar.json"
 TEAMS_PATH = ROOT / "docs" / "data" / "teams.json"
-REPORT_PATH = ROOT / "data" / "model_parameter_checks.md"
+REPORT_PATH_PL = ROOT / "data" / "model_parameter_checks.md"
+REPORT_PATH_EN = ROOT / "data" / "model_parameter_checks_EN.md"
 
 
 # Te wartości odpowiadają parametrom opisanym w dokumentacji i użytym w kodzie.
@@ -457,7 +460,18 @@ def weight_check(name: str, weights: dict | list[float]) -> str:
     return f"- **{name}**: suma wag = {fmt(total, 3)} ({status}); {details}."
 
 
-def build_report() -> str:
+def weight_check_en(name: str, weights: dict | list[float]) -> str:
+    if isinstance(weights, dict):
+        total = sum(weights.values())
+        details = ", ".join(f"{key}: {pct(value, 0)}" for key, value in weights.items())
+    else:
+        total = sum(weights)
+        details = ", ".join(pct(value, 0) for value in weights)
+    status = "OK" if abs(total - 1.0) < 0.000001 else "NEEDS REVIEW"
+    return f"- **{name}**: sum of weights = {fmt(total, 3)} ({status}); {details}."
+
+
+def build_report_pl() -> str:
     calendar, teams = load_data()
     latest_date = calendar["latest_date"]
     first_date = calendar["days"][0]["date"]
@@ -1118,10 +1132,673 @@ def build_report() -> str:
     return "\n".join(report)
 
 
+def build_report_en() -> str:
+    calendar, teams = load_data()
+    latest_date = calendar["latest_date"]
+    first_date = calendar["days"][0]["date"]
+
+    conversion = shot_conversion_from_export(calendar)
+    conversion_examples = shot_conversion_examples(calendar)
+    coverage = match_stat_coverage(calendar)
+    base_rates = base_rate_stats(calendar)
+    goals_by_day = scored_goals_by_day(calendar)
+    priors = fifa_prior_values(teams)
+    prior_examples = fifa_prior_examples(teams)
+    fifa_width_rows = fifa_width_scenarios(teams)
+    fifa_clip_rows = fifa_clip_scenarios(teams)
+    shrinkage_rows = shrinkage_scenarios()
+    efficiency_prior_rows = efficiency_prior_scenarios(conversion)
+    k_shots_rows = k_shots_scenarios()
+    form_rows = form_weight_scenarios()
+    opponent_rows = opponent_limit_scenarios()
+    first_ranges = prediction_ranges(calendar, first_date)
+    latest_ranges = prediction_ranges(calendar, latest_date)
+    lambdas = expected_goal_lambdas(calendar)
+    max_lambda = max(lambdas) if lambdas else BASE_RATE_FALLBACK
+    max_lambda_row = max_lambda_example(calendar)
+    max_goals_rows = max_goals_scenarios(max_lambda)
+    tail_at_max = poisson_tail_probability(max_lambda)
+    tail_at_fallback = poisson_tail_probability(BASE_RATE_FALLBACK)
+
+    shrinkage_examples = []
+    for matches_played in range(0, 6):
+        real_weight = matches_played / (matches_played + SHRINKAGE_K) if matches_played + SHRINKAGE_K else 0
+        prior_weight = 1 - real_weight
+        shrinkage_examples.append((matches_played, real_weight, prior_weight))
+
+    report = [
+        "# Notes on choosing the model's parameters",
+        "",
+        "This is not a scientific validation or an attempt to prove that the model predicts matches better than the betting market.",
+        "It's a working check of whether the numbers adopted in the project make sense against the data already in the site's export.",
+        "",
+        f"- Input data: `{CALENDAR_PATH.relative_to(ROOT)}` and `{TEAMS_PATH.relative_to(ROOT)}`.",
+        f"- Export range: from `{first_date}` to `{latest_date}`.",
+        f"- Number of teams: `{len(teams)}`.",
+        f"- Number of unique scored matches in the export: `{len(unique_scored_matches(calendar))}`.",
+        f"- Matches with a result and any statistics: `{coverage['with_any_stats']}`.",
+        f"- Matches with a result and statistics for both teams: `{coverage['with_both_stats']}`.",
+        "",
+        "## Where does the check data come from?",
+        "",
+        "I don't pull anything from the internet here and I don't connect to the database. I only work from files the site has already generated.",
+        "",
+        "Key fields:",
+        "",
+        "- `docs/data/calendar.json -> days[].prediction[]`: daily team ratings, chances, and 0-100 indices.",
+        "- `docs/data/calendar.json -> days[].matches[]`: matches, results, statuses, and match statistics.",
+        "- `docs/data/calendar.json -> days[].matches[].home_stats / away_stats`: shots, shots on target, possession, passes, cards, etc.",
+        "- `docs/data/calendar.json -> days[].base_rate`: average goals per team used in the goal model.",
+        "- `docs/data/teams.json -> fifa_rank_points`: FIFA ranking points used for the starting point.",
+        "",
+        "If a match has no statistics in `home_stats` or `away_stats`, I skip it when checking shot efficiency. I don't want to mix real results with empty statistics.",
+        "",
+        "## 1. Component weights",
+        "",
+        "First I check a simple thing: whether the weights in each group sum to 100%. If not, one part of the rating could accidentally be overweighted.",
+        "",
+        "General formula:",
+        "",
+        "```text",
+        "rating = component_1 x weight_1 + component_2 x weight_2 + ...",
+        "```",
+        "",
+        "These numbers don't come from the JSON. They're settings recorded in the model's code. I'm only checking that they add up to a full 100%.",
+        "",
+        weight_check_en("Attack", ATTACK_WEIGHTS),
+        weight_check_en("Defense", DEFENSE_WEIGHTS),
+        weight_check_en("Control", CONTROL_WEIGHTS),
+        weight_check_en("Efficiency", EFFICIENCY_WEIGHTS),
+        weight_check_en("Discipline", DISCIPLINE_WEIGHTS),
+        weight_check_en("Team strength", STRENGTH_WEIGHTS),
+        "",
+        "Method: weighted average. The weight proportions themselves are my design decision, not a value pulled from the API.",
+        "",
+        "## 2. The 0-100 scale and the neutral point of 50",
+        "",
+        "Here I check whether the exported indices actually stay within the 0-100 scale, and whether the midpoint of the scale falls close to a neutral 50.",
+        "",
+        "Data source:",
+        "",
+        "```text",
+        "docs/data/calendar.json -> days[].prediction[].strength",
+        "docs/data/calendar.json -> days[].prediction[].attack",
+        "docs/data/calendar.json -> days[].prediction[].defense",
+        "etc.",
+        "```",
+        "",
+        "How it's calculated in this note:",
+        "",
+        "```text",
+        "minimum = the smallest strength value that day",
+        "maximum = the largest strength value that day",
+        "average = sum of strength across all teams / number of teams",
+        "```",
+        "",
+        f"- First day (`{first_date}`): team strength from `{fmt(first_ranges['strength']['min'])}` to `{fmt(first_ranges['strength']['max'])}`, average `{fmt(first_ranges['strength']['mean'])}`.",
+        f"- Latest export day (`{latest_date}`): team strength from `{fmt(latest_ranges['strength']['min'])}` to `{fmt(latest_ranges['strength']['max'])}`, average `{fmt(latest_ranges['strength']['mean'])}`.",
+        "",
+        "Result: the midpoint stays around 50, so 50 works as a neutral point rather than an inflated starting rating.",
+        "Method: z-score / standard score.",
+        "",
+        "## 3. FIFA ranking as a prior: range 35-72 and width 8",
+        "",
+        "I recompute FIFA ranking points using the same formula the model uses.",
+        "",
+        "Data source:",
+        "",
+        "```text",
+        "docs/data/teams.json -> fifa_rank_points",
+        "```",
+        "",
+        "Formula:",
+        "",
+        "```text",
+        "mean = mean FIFA points across all teams",
+        "stdev = standard deviation of FIFA points",
+        "z = (team_points - mean) / stdev",
+        "raw_prior = 50 + z x 8",
+        "final_prior = clamp(raw_prior to the range 35-72)",
+        "```",
+        "",
+        f"- Mean FIFA points in `teams.json`: `{fmt(prior_examples['mean'])}`.",
+        f"- Standard deviation of FIFA points in `teams.json`: `{fmt(prior_examples['stdev'])}`.",
+        "",
+        f"- Computed FIFA prior: minimum `{fmt(min(priors))}`, maximum `{fmt(max(priors))}`, mean `{fmt(statistics.mean(priors))}`.",
+        f"- Number of teams at the lower limit `{FIFA_PRIOR_MIN:g}`: `{sum(1 for value in priors if abs(value - FIFA_PRIOR_MIN) < 0.000001)}`.",
+        f"- Number of teams at the upper limit `{FIFA_PRIOR_MAX:g}`: `{sum(1 for value in priors if abs(value - FIFA_PRIOR_MAX) < 0.000001)}`.",
+        "",
+        "Calculation examples:",
+        "",
+        "| Team | FIFA points | z-score | raw prior | prior after clamping |",
+        "|---|---:|---:|---:|---:|",
+    ]
+
+    for row in prior_examples["top"][:2] + prior_examples["middle"] + prior_examples["bottom"][-2:]:
+        report.append(
+            f"| {row['name']} | {fmt(row['points'], 0)} | {fmt(row['z'])} | {fmt(row['raw_prior'])} | {fmt(row['clipped_prior'])} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "How I chose the number `8`: I compared several possible widths for the FIFA ranking's influence.",
+            "",
+            "| Multiplier value | Lowest prior without a limit | Highest prior without a limit | Spread | Comment |",
+            "|---:|---:|---:|---:|---|",
+        ]
+    )
+
+    for row in fifa_width_rows:
+        if row["width"] < FIFA_PRIOR_ZSCORE_WIDTH:
+            verdict = "the ranking has little influence"
+        elif row["width"] == FIFA_PRIOR_ZSCORE_WIDTH:
+            verdict = "keeping this version: the influence is visible but doesn't dominate the start"
+        else:
+            verdict = "the ranking starts to strongly dominate the start"
+        report.append(
+            f"| {row['width']} | {fmt(row['min'])} | {fmt(row['max'])} | {fmt(row['spread'])} | {verdict} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "How I chose the range `35-72`: I checked several possible limits.",
+            "",
+            "| Range | Minimum after clamping | Maximum after clamping | Mean | Teams clamped from below | Teams clamped from above | Comment |",
+            "|---|---:|---:|---:|---:|---:|---|",
+        ]
+    )
+
+    for row in fifa_clip_rows:
+        if row["range"] == "35-72":
+            verdict = "keeping this version: cautious floor and a spare ceiling"
+        elif row["range"] == "30-70":
+            verdict = "no effect on the current data; would allow a lower start for weaker teams in the future"
+        elif row["range"] == "35-70":
+            verdict = "similar on current data, but with a lower safety ceiling"
+        elif row["range"] == "35-73":
+            verdict = "nearly identical; a marginally looser ceiling"
+        else:
+            verdict = "flattens weaker teams more strongly"
+        report.append(
+            f"| {row['range']} | {fmt(row['min'])} | {fmt(row['max'])} | {fmt(row['mean'])} | {row['clipped_low']} | {row['clipped_high']} | {verdict} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "My conclusion: `8` gives a noticeable gap between favorites and underdogs, but doesn't push teams up near 80-90 before the first match. I treat the `35-72` range as a safeguard: the lower limit protects against writing off weaker teams too harshly, and the upper limit reserves high ratings for situations already confirmed by tournament results.",
+        ]
+    )
+
+    report.extend(
+        [
+        "",
+        "In practice the FIFA ranking differentiates teams at the start, but doesn't stretch them out to the extreme values of 0 and 100.",
+        "Method: FIFA ranking as starting information + z-score. The numbers 35, 72, and 8 are settings chosen after checking several variants.",
+        "",
+        "## 4. Pull toward the starting point: 3 virtual matches",
+        "",
+        "Here I check how quickly real data starts to dominate over the starting point.",
+        "",
+        "Formula:",
+        "",
+        "```text",
+        "real_data_weight = matches_played / (matches_played + 3)",
+        "starting_point_weight = 1 - real_data_weight",
+        "final_rating = data_rating x real_data_weight + prior x starting_point_weight",
+        "```",
+        "",
+        "| Matches played | Real-data weight | Starting-point weight |",
+        "|---:|---:|---:|",
+    ]
+    )
+
+    for matches_played, real_weight, prior_weight in shrinkage_examples:
+        report.append(f"| {matches_played} | {pct(real_weight, 1)} | {pct(prior_weight, 1)} |")
+
+    report.extend(
+        [
+            "",
+            "How I chose the number `3`: I compared several possible strengths of pull toward the starting point.",
+            "",
+            "| Virtual matches | Real-data weight after 1 match | after 2 matches | after 3 matches | Comment |",
+            "|---:|---:|---:|---:|---|",
+        ]
+    )
+
+    for row in shrinkage_rows:
+        if row["k"] < SHRINKAGE_K:
+            verdict = "reacts faster, higher risk of overreacting"
+        elif row["k"] == SHRINKAGE_K:
+            verdict = "keeping this version: after the group stage, real data already carries 50%"
+        else:
+            verdict = "more conservative, reacts more slowly to the tournament"
+        report.append(
+            f"| {row['k']} | {pct(row['after_1'], 1)} | {pct(row['after_2'], 1)} | {pct(row['after_3'], 1)} | {verdict} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "My conclusion: `3` fits the World Cup's structure, since the group stage has three matches. After three matches, real data and the starting point each carry 50% weight, so the model doesn't ignore the ranking after a single match, but also doesn't cling to it for too long.",
+        ]
+    )
+
+    report.extend(
+        [
+            "",
+            "After one match the model is still cautious; after three matches real data and the starting point each carry 50%, and afterward the influence of tournament data keeps growing.",
+            "Method: smoothing / pseudo-observations. The number 3 is chosen to match the three matches of the group stage.",
+            "",
+            "## 5. Efficiency: 11%, 30%, and 15 virtual shots",
+            "",
+            "Here I compare the adopted values against the match data already in the site's export.",
+            "",
+            "Data source:",
+            "",
+            "```text",
+            "docs/data/calendar.json -> days[].matches[].home_goals / away_goals",
+            "docs/data/calendar.json -> days[].matches[].home_stats.shots_total / away_stats.shots_total",
+            "docs/data/calendar.json -> days[].matches[].home_stats.shots_on_goal / away_stats.shots_on_goal",
+            "```",
+            "",
+            "I only take matches with a result and non-empty team statistics.",
+            "",
+            "Formulas:",
+            "",
+            "```text",
+            "efficiency from all shots = total_goals / total_shots",
+            "efficiency from shots on target = total_goals / total_shots_on_target",
+            "```",
+            "",
+            f"- Team-stat rows with shot data: `{conversion['team_rows_with_stats']}`.",
+            f"- Goals: `{conversion['goals']}`.",
+            f"- Total shots: `{conversion['shots_total']}`.",
+            f"- Shots on target: `{conversion['shots_on_goal']}`.",
+            f"- Real goals / all shots in the export: `{pct(conversion['goals_per_shot'])}`.",
+            f"- Real goals / shots on target in the export: `{pct(conversion['goals_per_sog'])}`.",
+            "",
+            "Aggregate calculation:",
+            "",
+            "```text",
+            f"{conversion['goals']} / {conversion['shots_total']} = {pct(conversion['goals_per_shot'])}",
+            f"{conversion['goals']} / {conversion['shots_on_goal']} = {pct(conversion['goals_per_sog'])}",
+            "```",
+            "",
+            "Example data rows used in the calculation:",
+            "",
+            "| Kickoff | Team ID | Goals | Shots | Shots on target | Goals/shots | Goals/shots on target |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+
+    for row in conversion_examples:
+        report.append(
+            f"| {row['kickoff']} | {row['team_id']} | {row['goals']} | {row['shots_total']} | {row['shots_on_goal']} | {pct(row['goals_per_shot'])} | {pct(row['goals_per_sog'])} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "How I chose the values `11%` and `30%`: I compared several starting points against the real efficiency in the project's data.",
+            "",
+            "| Candidate for all shots | Difference from project data | Candidate for shots on target | Difference from project data | Comment |",
+            "|---:|---:|---:|---:|---|",
+        ]
+    )
+
+    for row in efficiency_prior_rows:
+        if abs(row["shot_prior"] - EFFICIENCY_SHOTS_PRIOR) < 0.000001 and abs(row["sog_prior"] - EFFICIENCY_SOG_PRIOR) < 0.000001:
+            verdict = "keeping this version: close to the data, but cautious for shots on target"
+        elif row["shot_prior"] < EFFICIENCY_SHOTS_PRIOR:
+            verdict = "more pessimistic"
+        elif abs(row["shot_prior"] - conversion["goals_per_shot"]) < 0.000001:
+            verdict = "an exact match to the current sample, less conservative"
+        else:
+            verdict = "a close alternative, but less consistent with the data"
+        report.append(
+            f"| {pct(row['shot_prior'])} | {pct(row['shot_diff'])} | {pct(row['sog_prior'])} | {pct(row['sog_diff'])} | {verdict} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "How I chose the number `15`: I compared the strength of smoothing on two simple examples.",
+            "",
+            "| Virtual shots | 2 goals / 2 shots after smoothing | 5 goals / 20 shots after smoothing | Comment |",
+            "|---:|---:|---:|---|",
+        ]
+    )
+
+    for row in k_shots_rows:
+        if row["k"] < K_SHOTS:
+            verdict = "weaker smoothing, still reacts strongly to a small sample"
+        elif row["k"] == K_SHOTS:
+            verdict = "keeping this version: moderate smoothing"
+        else:
+            verdict = "stronger smoothing, trusts real shots more slowly"
+        report.append(
+            f"| {row['k']} | {pct(row['two_of_two'])} | {pct(row['five_of_twenty'])} | {verdict} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "My conclusion: `11%` comes from comparing it against the current efficiency of all shots in the project data (`11.74%`). I keep `30%` below the current `34.79%`, since it's meant to be a cautious starting point. `15` virtual shots limits the jump to 100% on a 2/2 sample, without completely masking the real data.",
+        ]
+    )
+
+    report.extend(
+        [
+            "",
+            f"The adopted `{pct(EFFICIENCY_SHOTS_PRIOR, 0)}` for all shots is close to the project's data, while `{pct(EFFICIENCY_SOG_PRIOR, 0)}` for shots on target is deliberately below the current sample.",
+            "",
+            "Additional check: a team with 2 goals from 2 shots doesn't get 100% efficiency.",
+            "",
+            "- Without smoothing: `2 / 2 = 100%`.",
+            f"- With smoothing for all shots: `(2 + {K_SHOTS} x {EFFICIENCY_SHOTS_PRIOR}) / (2 + {K_SHOTS}) = {pct((2 + K_SHOTS * EFFICIENCY_SHOTS_PRIOR) / (2 + K_SHOTS))}`.",
+            "",
+            "Method: xG as thinking about a shot in terms of scoring probability + additive smoothing. The numbers 11%, 30%, and 15 are settings chosen for this project.",
+            "",
+            "## 6. Form: 3 matches, weights 50% / 30% / 20%, and goal difference divided by 3",
+            "",
+            "I check whether the form weights sum to 100% and how the goal-difference clamp behaves.",
+            "",
+            "Data source for form in the model:",
+            "",
+            "```text",
+            "docs/data/calendar.json -> days[].matches[].home_goals / away_goals",
+            "docs/data/calendar.json -> days[].matches[].home_team_id / away_team_id",
+            "```",
+            "",
+            "Formula for goal difference:",
+            "",
+            "```text",
+            "difference_component = clamp((team_goals - opponent_goals) / 3, from -1 to 1)",
+            "```",
+            "",
+            weight_check_en("Form", FORM_WEIGHTS),
+            "",
+            "| Goal difference | Component before clamping | Component after clamping |",
+            "|---:|---:|---:|",
+        ]
+    )
+
+    for diff in [-5, -3, -2, -1, 0, 1, 2, 3, 5]:
+        raw = diff / GOAL_DIFF_DIVISOR
+        clipped = max(-1.0, min(1.0, raw))
+        report.append(f"| {diff:+d} | {fmt(raw)} | {fmt(clipped)} |")
+
+    report.extend(
+        [
+            "",
+            "How I chose the weights `50% / 30% / 20%`: I compared several approaches to form.",
+            "",
+            "| Variant | Match weights from most recent | What it means |",
+            "|---|---|---|",
+        ]
+    )
+
+    for row in form_rows:
+        weights = " / ".join(pct(value, 0) for value in row["weights"])
+        if row["name"] == "równe":
+            meaning = "each of the 3 matches has the same influence, less sensitive to the current trend"
+        elif row["name"] == "wybrane":
+            meaning = "keeping this version: the most recent match matters most, but older ones still stabilize the rating"
+        else:
+            meaning = "very strongly rewards the last match, higher risk of overreacting"
+        report.append(f"| {row['name']} | {weights} | {meaning} |")
+
+    report.extend(
+        [
+            "",
+            "My conclusion: `50/30/20` is a middle ground between treating all three matches equally and making form too dependent on the last result.",
+        ]
+    )
+
+    report.extend(
+        [
+            "",
+            "A win by three goals is treated as a very strong signal, but higher scores don't keep boosting form indefinitely.",
+            "Method: short weighted average. The numbers 3 and 50/30/20 are project settings.",
+            "",
+            "## 7. Opponent quality: multiplier 0.4-2.5",
+            "",
+            "I check whether the limits act as a safeguard rather than the main mechanism driving the whole rating.",
+            "",
+            "Data source:",
+            "",
+            "```text",
+            "docs/data/calendar.json -> days[].prediction[].attack",
+            "docs/data/calendar.json -> days[].prediction[].defense",
+            "```",
+            "",
+            "Formulas used in the model:",
+            "",
+            "```text",
+            "opponent_defense_multiplier = opponent_defense / 50",
+            "opponent_attack_multiplier = 50 / opponent_attack",
+            "the multiplier result is clamped to the range 0.4-2.5",
+            "```",
+            "",
+            f"- Minimum limit: `{OPPONENT_ADJUSTMENT_MIN}`.",
+            f"- Maximum limit: `{OPPONENT_ADJUSTMENT_MAX}`.",
+            f"- On the latest export day, Attack ranges from `{fmt(latest_ranges['attack']['min'])}` to `{fmt(latest_ranges['attack']['max'])}`.",
+            f"- On the latest export day, Defense ranges from `{fmt(latest_ranges['defense']['min'])}` to `{fmt(latest_ranges['defense']['max'])}`.",
+            "",
+            "How I chose the range `0.4-2.5`: I compared the limits against sample raw multipliers.",
+            "",
+            "| Raw multiplier | Narrow limit 0.7-1.6 | Chosen limit 0.4-2.5 | Wide limit 0.2-4.0 |",
+            "|---:|---:|---:|---:|",
+        ]
+    )
+
+    for row in opponent_rows:
+        report.append(f"| {fmt(row['raw'])} | {fmt(row['narrow'])} | {fmt(row['chosen'])} | {fmt(row['wide'])} |")
+
+    report.extend(
+        [
+            "",
+            "My conclusion: `0.4-2.5` is a compromise. A narrow limit flattens opponent quality too much, while a wide limit would let single extreme cases distort the rating too strongly.",
+            "With the current data, teams are far from the extreme values of 0 and 100, so the 0.4-2.5 limits mainly act as a safeguard for unusual situations.",
+            "Method: weighting the result by opponent quality. The specific limits are a technical setting of the project.",
+            "",
+            "## 8. Average goals: fallback of 1.3 goals per team",
+            "",
+            "I compare the 1.3 fallback against the real averages recorded in the export.",
+            "",
+            "Data source:",
+            "",
+            "```text",
+            "docs/data/calendar.json -> days[].base_rate",
+            "docs/data/calendar.json -> days[].matches[].home_goals / away_goals",
+            "```",
+            "",
+            "Logical formula:",
+            "",
+            "```text",
+            "base_rate = total_goals / number_of_team_appearances",
+            "number_of_team_appearances = number_of_matches x 2",
+            "```",
+            "",
+            "Example days from the export:",
+            "",
+            "| Date | Goals in that day's matches | Team appearances | Goals / team appearance | base_rate in the export |",
+            "|---|---:|---:|---:|---:|",
+        ]
+    )
+
+    for row in goals_by_day[:2] + goals_by_day[-3:]:
+        per_team = "" if row["goals_per_team_match"] is None else fmt(row["goals_per_team_match"], 3)
+        report.append(
+            f"| {row['date']} | {row['goals']} | {row['team_match_count']} | {per_team} | {fmt(row['exported_base_rate'], 3)} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "How I chose the fallback `1.3`: I compared several possible starting values against later averages from the export.",
+            "",
+            "| Fallback candidate | Total goals per match | Difference from the export-day average | Comment |",
+            "|---:|---:|---:|---|",
+        ]
+    )
+
+    for candidate in [1.0, 1.2, 1.3, 1.5, 1.7]:
+        if candidate < BASE_RATE_FALLBACK:
+            verdict = "more cautious, may understate the number of goals"
+        elif abs(candidate - BASE_RATE_FALLBACK) < 0.000001:
+            verdict = "keeping this version: cautiously below the export average"
+        else:
+            verdict = "more attacking, closer to/above the current average"
+        report.append(
+            f"| {fmt(candidate, 2)} | {fmt(candidate * 2, 2)} | {fmt(candidate - base_rates['mean'], 3)} | {verdict} |"
+        )
+
+    report.extend(
+        [
+            "",
+            "`1.3` stays as a starting point below the current export average (`{}`) - a cautious fallback used only when there's no real tournament average yet.".format(fmt(base_rates["mean"], 3)),
+        ]
+    )
+
+    report.extend(
+        [
+            "",
+            f"- First recorded `base_rate` value: `{fmt(base_rates['first'], 3)}`.",
+            f"- Latest recorded `base_rate` value: `{fmt(base_rates['latest'], 3)}`.",
+            f"- Minimum in the export: `{fmt(base_rates['minimum'], 3)}`.",
+            f"- Maximum in the export: `{fmt(base_rates['maximum'], 3)}`.",
+            f"- Mean across export days: `{fmt(base_rates['mean'], 3)}`.",
+            "",
+            f"The `{BASE_RATE_FALLBACK}` fallback is a cautious starting point. Once matches are played, the model uses the real tournament average.",
+            "Method: average goals as the base parameter of the Poisson model. The number 1.3 is a project setting.",
+            "",
+            "## 9. The Poisson model and a maximum of 10 goals",
+            "",
+            "I check how much of the distribution's tail gets cut off at 10 goals.",
+            "",
+            "Data source for lambda:",
+            "",
+            "```text",
+            "docs/data/calendar.json -> days[].base_rate",
+            "docs/data/calendar.json -> days[].prediction[].attack",
+            "docs/data/calendar.json -> days[].prediction[].defense",
+            "```",
+            "",
+            "Formula:",
+            "",
+            "```text",
+            "lambda = base_rate x (attack / 50) x ((100 - opponent_defense) / 50)",
+            "```",
+            "",
+        ]
+    )
+
+    if max_lambda_row:
+        report.extend(
+            [
+                "The largest lambda found in the export:",
+                "",
+                "```text",
+                f"date = {max_lambda_row['date']}",
+                f"team_id = {max_lambda_row['team_id']}",
+                f"opponent_id = {max_lambda_row['opponent_id']}",
+                f"base_rate = {fmt(max_lambda_row['base_rate'], 3)}",
+                f"attack = {fmt(max_lambda_row['attack'])}",
+                f"opponent_defense = {fmt(max_lambda_row['opponent_defense'])}",
+                f"lambda = {fmt(max_lambda_row['base_rate'], 3)} x ({fmt(max_lambda_row['attack'])} / 50) x ((100 - {fmt(max_lambda_row['opponent_defense'])}) / 50)",
+                f"lambda = {fmt(max_lambda_row['lambda'], 3)}",
+                "```",
+                "",
+            ]
+        )
+
+    report.extend(
+        [
+            "How I chose the limit `10`: I compared how much probability gets cut off at different goal limits.",
+            "",
+            "| Goal limit | Probability of a result above the limit at the largest lambda | Comment |",
+            "|---:|---:|---|",
+        ]
+    )
+
+    for row in max_goals_rows:
+        if row["max_goals"] < MAX_GOALS:
+            verdict = "faster, but cuts off a bigger tail"
+        elif row["max_goals"] == MAX_GOALS:
+            verdict = "keeping this version: the tail is already negligible"
+        else:
+            verdict = "marginally more precise, barely changes the result"
+        report.append(f"| {row['max_goals']} | {pct(row['tail'], 6)} | {verdict} |")
+
+    report.extend(
+        [
+            "",
+            f"- Probability of more than 10 goals at lambda `{BASE_RATE_FALLBACK}`: `{pct(tail_at_fallback, 6)}`.",
+            f"- Largest lambda found in the match export: `{fmt(max_lambda, 3)}`.",
+            f"- Probability of more than 10 goals at that lambda: `{pct(tail_at_max, 6)}`.",
+            "",
+            "Cutting off at 10 goals skips an extremely small tail of the distribution, while significantly simplifying the calculations.",
+            "Method: Poisson distribution. The number 10 is a technical setting of the project.",
+            "",
+            "## 10. Number of simulations: 10,000",
+            "",
+            "I estimate the typical random error of a proportion at different numbers of simulations. For simplicity I take the hardest case, p=50%, where the error is largest.",
+            "",
+            "Formula:",
+            "",
+            "```text",
+            "standard_error = sqrt(p x (1 - p) / number_of_simulations)",
+            "for the hardest case we take p = 0.5",
+            "```",
+            "",
+            "| Number of simulations | Approximate standard error |",
+            "|---:|---:|",
+        ]
+    )
+
+    for n in [1_000, 5_000, 10_000, 20_000]:
+        report.append(f"| {n:,}".replace(",", " ") + f" | {pct(monte_carlo_standard_error(n), 2)} |")
+
+    report.extend(
+        [
+            "",
+            "How I chose `10,000`: 1,000 simulations is fast, but the random error is more than three times larger than at 10,000. 20,000 gives a smaller error, but costs more time, and the benefit for the dashboard is already small.",
+            f"At `{str(N_SIMULATIONS).replace('10000', '10,000')}` simulations, the random error for a single proportion is already small, and the computation is still practical to run locally.",
+            "Method: Monte Carlo. The number 10,000 is a project setting.",
+            "",
+            "## Method sources",
+            "",
+            "The sources below don't state the specific parameters of this project. They justify the methods the project is built on:",
+            "",
+            "- z-score / standardization: https://en.wikipedia.org/wiki/Standard_score",
+            "- expected goals, i.e. treating a shot as a scoring probability: https://en.wikipedia.org/wiki/Expected_goals",
+            "- additive smoothing, i.e. smoothing via pseudo-observations: https://en.wikipedia.org/wiki/Additive_smoothing",
+            "- the Poisson distribution: https://en.wikipedia.org/wiki/Poisson_distribution",
+            "- the Monte Carlo method: https://en.wikipedia.org/wiki/Monte_Carlo_method",
+            "- the FIFA ranking as a reference point for national-team strength: https://en.wikipedia.org/wiki/FIFA_Men%27s_World_Ranking",
+            "",
+            "## Summary",
+            "",
+            "These checks don't prove that the model knows the future. They show something simpler: the numbers are explicit, verifiable, and not disconnected from the data the project already has.",
+            "",
+            "The parameters most strongly supported by local data are shot efficiency and the average-goals fallback. The remaining numbers are calibration parameters: their role is to stabilize the model, limit extremes, and keep the results interpretable.",
+            "",
+        ]
+    )
+
+    return "\n".join(report)
+
+
 def main() -> None:
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(build_report(), encoding="utf-8")
-    print(f"Zapisano raport: {REPORT_PATH}")
+    REPORT_PATH_PL.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH_PL.write_text(build_report_pl(), encoding="utf-8")
+    print(f"Zapisano raport: {REPORT_PATH_PL}")
+    REPORT_PATH_EN.write_text(build_report_en(), encoding="utf-8")
+    print(f"Zapisano raport: {REPORT_PATH_EN}")
 
 
 if __name__ == "__main__":
