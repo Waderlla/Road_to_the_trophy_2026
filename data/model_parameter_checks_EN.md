@@ -1,6 +1,5 @@
 # Notes on choosing the model's parameters
 
-This is not a scientific validation or an attempt to prove that the model predicts matches better than the betting market.
 It's a working check of whether the numbers adopted in the project make sense against the data already in the site's export.
 
 - Input data: `docs\data\calendar.json` and `docs\data\teams.json`.
