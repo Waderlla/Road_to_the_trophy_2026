@@ -1,7 +1,6 @@
 # Notatka z doboru parametrów modelu
 
-To nie jest walidacja naukowa ani próba udowodnienia, że model przewiduje mecze lepiej od rynku bukmacherskiego.
-To robocze sprawdzenie, czy liczby przyjęte w projekcie mają sens na danych, które są już w eksporcie strony.
+Robocze sprawdzenie, czy liczby przyjęte w projekcie mają sens na danych, które są już w eksporcie strony.
 
 - Dane wejściowe: `docs\data\calendar.json` oraz `docs\data\teams.json`.
 - Zakres eksportu: od `2026-06-11` do `2026-07-08`.
