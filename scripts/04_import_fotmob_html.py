@@ -192,6 +192,26 @@ def find_or_create_match(
         )
         return match_id
 
+    # Ten sam mecz mogl juz istniec jako wiersz z API (np. sam terminarz/NS,
+    # zanim API przestalo dzialac) - bez tego sprawdzenia rezultat ladowal
+    # jako DRUGI, zdublowany wiersz zamiast nadpisac istniejacy.
+    cur.execute(
+        """
+        SELECT match_id FROM matches
+        WHERE home_team_id = %s AND away_team_id = %s AND match_date::date = %s
+        """,
+        (home_id, away_id, local_date),
+    )
+    row = cur.fetchone()
+    if row:
+        match_id = row[0]
+        cur.execute(
+            """UPDATE matches SET home_goals = %s, away_goals = %s, status = %s, stage = %s,
+               winner_team_id = %s, source = 'manual_html' WHERE match_id = %s""",
+            (home_goals, away_goals, status, stage, winner_team_id, match_id),
+        )
+        return match_id
+
     cur.execute(
         """
         INSERT INTO matches (
