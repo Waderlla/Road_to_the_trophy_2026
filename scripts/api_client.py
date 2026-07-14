@@ -19,6 +19,12 @@ BUDGET_FILE = ROOT / "data" / ".request_budget.json"
 # Zostawiamy bezpieczny zapas, zeby nigdy przypadkiem nie przekroczyc limitu.
 DAILY_SAFETY_LIMIT = 90
 
+# Darmowy plan ma tez limit 10 zapytan/minute. Poprzedni odstep (0.5s) pozwalal
+# na 120 zapytan/minute - ponad 12x za duzo - i doprowadzil do automatycznego
+# zawieszenia konta przez firewall API-Football ("abnormal traffic spikes").
+# 6.5s daje maksymalnie ~9 zapytan/minute, z zapasem ponizej limitu.
+REQUEST_INTERVAL_SECONDS = 6.5
+
 
 def _today_utc():
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -64,5 +70,5 @@ def get(endpoint, params=None):
     if data.get("errors"):
         print(f"    [UWAGA] API zwrocilo blad: {data['errors']}")
 
-    time.sleep(0.5)
+    time.sleep(REQUEST_INTERVAL_SECONDS)
     return data
