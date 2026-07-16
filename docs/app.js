@@ -81,19 +81,39 @@ function nextStageForTeam(entry) {
 
 function nextMatchInfo(dayData, entry) {
   const stageInfo = nextStageForTeam(entry);
-  if (!stageInfo) return null;
-  const { stage, reachProbability } = stageInfo;
-  const opponents = (entry.opponents && entry.opponents[stage]) || [];
-  if (opponents.length === 0) return null;
+  let stage, reachProbability, opponentId, opponentChance, confirmed = false;
 
-  const top = [...opponents].sort((a, b) => b.probability - a.probability)[0];
-  const oppEntry = dayData.prediction.find((p) => p.team_id === top.opponent_id);
+  if (stageInfo) {
+    const opponents = (entry.opponents && entry.opponents[stageInfo.stage]) || [];
+    if (opponents.length > 0) {
+      const top = [...opponents].sort((a, b) => b.probability - a.probability)[0];
+      stage = stageInfo.stage;
+      reachProbability = stageInfo.reachProbability;
+      opponentId = top.opponent_id;
+      opponentChance = top.probability;
+    }
+  }
+
+  if (opponentId === undefined) {
+    // Droga do etapu jest juz pewna (druzyna faktycznie awansowala) - zamiast
+    // probabilistycznego zgadywania pokazujemy prawdziwy, zaplanowany mecz
+    // z drabinki turniejowej.
+    const scheduled = nearestBracketMatch(dayData, entry.team_id);
+    if (!scheduled) return null;
+    stage = scheduled.stage;
+    reachProbability = 1;
+    opponentId = scheduled.opponentId;
+    opponentChance = 1;
+    confirmed = true;
+  }
+
+  const oppEntry = dayData.prediction.find((p) => p.team_id === opponentId);
   if (!oppEntry) return null;
 
   const baseRate = dayData.base_rate || 1.3;
   const probs = matchResultProbabilities(entry.attack, entry.defense, oppEntry.attack, oppEntry.defense, baseRate);
   const scorelines = mostLikelyScorelines(entry.attack, entry.defense, oppEntry.attack, oppEntry.defense, baseRate, 3);
-  return { stage, reachProbability, opponentId: top.opponent_id, opponentChance: top.probability, probs, scorelines };
+  return { stage, reachProbability, opponentId, opponentChance, probs, scorelines, confirmed };
 }
 
 async function loadData() {
@@ -530,9 +550,10 @@ function renderUpcomingPreviewHtml(current) {
     const scheduledMatch = nearestBracketMatch(current, entry.team_id);
     const matchDate = scheduledMatch || bracketDateForStage(current, entry.team_id, info.stage);
     const kickoff = matchDate ? formatMatchDateTime(matchDate.kickoff, matchDate.date) : "";
+    const rivalLabel = info.confirmed ? "rywal" : `prawdopodobny rywal (${(info.opponentChance * 100).toFixed(0)}%)`;
     cards.push(`
       <div class="match-card">
-        <div class="stage-label"><span>${stageLabel(info.stage)} - prawdopodobny rywal (${(info.opponentChance * 100).toFixed(0)}%)</span>${kickoff ? `<time>${kickoff}</time>` : ""}</div>
+        <div class="stage-label"><span>${stageLabel(info.stage)} - ${rivalLabel}</span>${kickoff ? `<time>${kickoff}</time>` : ""}</div>
         <div class="score-line">
           <span>${team.name}</span>
           <span>${(info.probs.winA * 100).toFixed(0)}% / remis ${(info.probs.draw * 100).toFixed(0)}% / ${(info.probs.winB * 100).toFixed(0)}%</span>
@@ -1157,13 +1178,13 @@ function renderModalRivalCard(dayData, entry) {
     .join("");
   return `
     <section class="modal-dashboard-card modal-rival-card">
-      <h3>Najbardziej prawdopodobny rywal</h3>
+      <h3>${info.confirmed ? "Rywal" : "Najbardziej prawdopodobny rywal"}</h3>
       <div class="modal-rival-team">
         ${flagImg(info.opponentId)}
         <strong>${opponent.name}</strong>
-        <span>${(info.opponentChance * 100).toFixed(0)}%</span>
+        ${info.confirmed ? "" : `<span>${(info.opponentChance * 100).toFixed(0)}%</span>`}
       </div>
-      <p>${stageLabel(info.stage)} (jeśli drużyna dotrze)</p>
+      <p>${stageLabel(info.stage)}${info.confirmed ? " (mecz zaplanowany)" : " (jeśli drużyna dotrze)"}</p>
       <div class="modal-result-title">Szacowane prawdopodobieństwo wyniku po 90 minutach</div>
       <div class="modal-result-probs">
         <div><span>Wygrana</span><strong class="change-up">${(info.probs.winA * 100).toFixed(0)}%</strong></div>
@@ -1257,10 +1278,17 @@ function renderNextMatch(dayData, entry) {
     .map((s) => `${s[0]}:${s[1]} <span class="score-pct">(${(s[2] * 100).toFixed(0)}%)</span>`)
     .join(", ");
 
+  const headline = info.confirmed
+    ? `<h3>${team.name} - etap: ${stageLabel(info.stage)}</h3>`
+    : `<h3>Jeśli ${team.name} dotrze do etapu: ${stageLabel(info.stage)} <span class="next-match-reach">(${(info.reachProbability * 100).toFixed(0)}% szans, że tam dotrze)</span></h3>`;
+  const rivalLine = info.confirmed
+    ? `<p class="next-match-teams">Rywal: ${oppTeam.name} <span class="next-match-chance">(mecz zaplanowany)</span></p>`
+    : `<p class="next-match-teams">Najbardziej prawdopodobny rywal: ${oppTeam.name} <span class="next-match-chance">(${(info.opponentChance * 100).toFixed(0)}% szans, że to on)</span></p>`;
+
   return `
     <div class="next-match">
-      <h3>Jeśli ${team.name} dotrze do etapu: ${stageLabel(info.stage)} <span class="next-match-reach">(${(info.reachProbability * 100).toFixed(0)}% szans, że tam dotrze)</span></h3>
-      <p class="next-match-teams">Najbardziej prawdopodobny rywal: ${oppTeam.name} <span class="next-match-chance">(${(info.opponentChance * 100).toFixed(0)}% szans, że to on)</span></p>
+      ${headline}
+      ${rivalLine}
       <div class="next-match-probs">
         <span>Wygrana: <strong>${(info.probs.winA * 100).toFixed(0)}%</strong></span>
         <span>Remis: <strong>${(info.probs.draw * 100).toFixed(0)}%</strong></span>
