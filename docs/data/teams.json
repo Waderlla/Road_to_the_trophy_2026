@@ -77,6 +77,71 @@
     "captain_name": "Leandro Bacuna",
     "average_age": 27.6
   },
+  "125": {
+    "name": "Stany Zjednoczone",
+    "code": "USA",
+    "group": "D",
+    "logo_url": "https://media.api-sports.io/football/teams/2384.png",
+    "iso": "us",
+    "fifa_rank": 17,
+    "fifa_rank_points": 1671,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Mauricio Pochettino",
+    "captain_name": "Tim Ream",
+    "average_age": 26.5
+  },
+  "8": {
+    "name": "DR Kongo",
+    "code": "COD",
+    "group": "K",
+    "logo_url": null,
+    "iso": "cd",
+    "fifa_rank": 46,
+    "fifa_rank_points": 1474,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Sébastien Desabre",
+    "captain_name": "Chancel Mbemba",
+    "average_age": 28.6
+  },
+  "90": {
+    "name": "Portugalia",
+    "code": "POR",
+    "group": "K",
+    "logo_url": "https://media.api-sports.io/football/teams/27.png",
+    "iso": "pt",
+    "fifa_rank": 5,
+    "fifa_rank_points": 1768,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Roberto Martínez",
+    "captain_name": "Cristiano Ronaldo",
+    "average_age": 27.6
+  },
+  "61": {
+    "name": "Hiszpania",
+    "code": "ESP",
+    "group": "H",
+    "logo_url": "https://media.api-sports.io/football/teams/9.png",
+    "iso": "es",
+    "fifa_rank": 2,
+    "fifa_rank_points": 1875,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Luis de la Fuente",
+    "captain_name": "Rodri",
+    "average_age": 26.3
+  },
+  "12": {
+    "name": "Urugwaj",
+    "code": "URU",
+    "group": "H",
+    "logo_url": null,
+    "iso": "uy",
+    "fifa_rank": 16,
+    "fifa_rank_points": 1673,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Marcelo Bielsa",
+    "captain_name": "Federico Valverde",
+    "average_age": 28.3
+  },
   "42": {
     "name": "Republika Południowej Afryki",
     "code": "RSA",
@@ -89,6 +154,19 @@
     "coach_name": "Hugo Broos",
     "captain_name": "Ronwen Williams",
     "average_age": 26.3
+  },
+  "44": {
+    "name": "Uzbekistan",
+    "code": "UZB",
+    "group": "K",
+    "logo_url": null,
+    "iso": "uz",
+    "fifa_rank": 50,
+    "fifa_rank_points": 1459,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Fabio Cannavaro",
+    "captain_name": "Eldor Shomurodov",
+    "average_age": 27.8
   },
   "91": {
     "name": "Korea Południowa",
@@ -141,110 +219,6 @@
     "coach_name": "Tony Popovic",
     "captain_name": "Harry Souttar",
     "average_age": 27.0
-  },
-  "50": {
-    "name": "Niemcy",
-    "code": "GER",
-    "group": "E",
-    "logo_url": null,
-    "iso": "de",
-    "fifa_rank": 10,
-    "fifa_rank_points": 1736,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Julian Nagelsmann",
-    "captain_name": "Joshua Kimmich",
-    "average_age": 27.7
-  },
-  "51": {
-    "name": "Francja",
-    "code": "FRA",
-    "group": "I",
-    "logo_url": "https://media.api-sports.io/football/teams/2.png",
-    "iso": "fr",
-    "fifa_rank": 3,
-    "fifa_rank_points": 1871,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Didier Deschamps",
-    "captain_name": "Kylian Mbappé",
-    "average_age": 26.7
-  },
-  "22": {
-    "name": "Egipt",
-    "code": "EGY",
-    "group": "G",
-    "logo_url": "https://media.api-sports.io/football/teams/32.png",
-    "iso": "eg",
-    "fifa_rank": 29,
-    "fifa_rank_points": 1562,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Hossam Hassan",
-    "captain_name": "Mohamed Salah",
-    "average_age": 28.7
-  },
-  "5": {
-    "name": "Anglia",
-    "code": "ENG",
-    "group": "L",
-    "logo_url": "https://media.api-sports.io/football/teams/10.png",
-    "iso": "gb-eng",
-    "fifa_rank": 4,
-    "fifa_rank_points": 1828,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Thomas Tuchel",
-    "captain_name": "Harry Kane",
-    "average_age": 26.9
-  },
-  "58": {
-    "name": "Panama",
-    "code": "PAN",
-    "group": "L",
-    "logo_url": null,
-    "iso": "pa",
-    "fifa_rank": 34,
-    "fifa_rank_points": 1539,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Thomas Christiansen",
-    "captain_name": "Yoel Bárcenas",
-    "average_age": 30.1
-  },
-  "6": {
-    "name": "Chorwacja",
-    "code": "CRO",
-    "group": "L",
-    "logo_url": "https://media.api-sports.io/football/teams/3.png",
-    "iso": "hr",
-    "fifa_rank": 11,
-    "fifa_rank_points": 1715,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Zlatko Dalic",
-    "captain_name": "Luka Modric",
-    "average_age": 27.9
-  },
-  "8": {
-    "name": "DR Kongo",
-    "code": "COD",
-    "group": "K",
-    "logo_url": null,
-    "iso": "cd",
-    "fifa_rank": 46,
-    "fifa_rank_points": 1474,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Sébastien Desabre",
-    "captain_name": "Chancel Mbemba",
-    "average_age": 28.6
-  },
-  "90": {
-    "name": "Portugalia",
-    "code": "POR",
-    "group": "K",
-    "logo_url": "https://media.api-sports.io/football/teams/27.png",
-    "iso": "pt",
-    "fifa_rank": 5,
-    "fifa_rank_points": 1768,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Roberto Martínez",
-    "captain_name": "Cristiano Ronaldo",
-    "average_age": 27.6
   },
   "29": {
     "name": "Brazylia",
@@ -324,6 +298,45 @@
     "captain_name": "Victor Nilsson Lindelöf",
     "average_age": 27.2
   },
+  "50": {
+    "name": "Niemcy",
+    "code": "GER",
+    "group": "E",
+    "logo_url": null,
+    "iso": "de",
+    "fifa_rank": 10,
+    "fifa_rank_points": 1736,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Julian Nagelsmann",
+    "captain_name": "Joshua Kimmich",
+    "average_age": 27.7
+  },
+  "51": {
+    "name": "Francja",
+    "code": "FRA",
+    "group": "I",
+    "logo_url": "https://media.api-sports.io/football/teams/2.png",
+    "iso": "fr",
+    "fifa_rank": 3,
+    "fifa_rank_points": 1871,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Didier Deschamps",
+    "captain_name": "Kylian Mbappé",
+    "average_age": 26.7
+  },
+  "22": {
+    "name": "Egipt",
+    "code": "EGY",
+    "group": "G",
+    "logo_url": "https://media.api-sports.io/football/teams/32.png",
+    "iso": "eg",
+    "fifa_rank": 29,
+    "fifa_rank_points": 1562,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Hossam Hassan",
+    "captain_name": "Mohamed Salah",
+    "average_age": 28.7
+  },
   "65": {
     "name": "Holandia",
     "code": "NED",
@@ -363,6 +376,45 @@
     "captain_name": "Ritsu Doan",
     "average_age": 27.0
   },
+  "5": {
+    "name": "Anglia",
+    "code": "ENG",
+    "group": "L",
+    "logo_url": "https://media.api-sports.io/football/teams/10.png",
+    "iso": "gb-eng",
+    "fifa_rank": 4,
+    "fifa_rank_points": 1828,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Thomas Tuchel",
+    "captain_name": "Harry Kane",
+    "average_age": 26.9
+  },
+  "58": {
+    "name": "Panama",
+    "code": "PAN",
+    "group": "L",
+    "logo_url": null,
+    "iso": "pa",
+    "fifa_rank": 34,
+    "fifa_rank_points": 1539,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Thomas Christiansen",
+    "captain_name": "Yoel Bárcenas",
+    "average_age": 30.1
+  },
+  "6": {
+    "name": "Chorwacja",
+    "code": "CRO",
+    "group": "L",
+    "logo_url": "https://media.api-sports.io/football/teams/3.png",
+    "iso": "hr",
+    "fifa_rank": 11,
+    "fifa_rank_points": 1715,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Zlatko Dalic",
+    "captain_name": "Luka Modric",
+    "average_age": 27.9
+  },
   "102": {
     "name": "Paragwaj",
     "code": "PAR",
@@ -376,57 +428,31 @@
     "captain_name": "Gustavo Gómez",
     "average_age": 28.6
   },
-  "125": {
-    "name": "Stany Zjednoczone",
-    "code": "USA",
-    "group": "D",
-    "logo_url": "https://media.api-sports.io/football/teams/2384.png",
-    "iso": "us",
-    "fifa_rank": 17,
-    "fifa_rank_points": 1671,
+  "40": {
+    "name": "Meksyk",
+    "code": "MEX",
+    "group": "A",
+    "logo_url": "https://media.api-sports.io/football/teams/16.png",
+    "iso": "mx",
+    "fifa_rank": 14,
+    "fifa_rank_points": 1687,
     "fifa_rank_date": "2026-06-11",
-    "coach_name": "Mauricio Pochettino",
-    "captain_name": "Tim Ream",
-    "average_age": 26.5
+    "coach_name": "Javier Aguirre",
+    "captain_name": "César Montes",
+    "average_age": 27.5
   },
-  "61": {
-    "name": "Hiszpania",
-    "code": "ESP",
-    "group": "H",
-    "logo_url": "https://media.api-sports.io/football/teams/9.png",
-    "iso": "es",
-    "fifa_rank": 2,
-    "fifa_rank_points": 1875,
+  "21": {
+    "name": "Belgia",
+    "code": "BEL",
+    "group": "G",
+    "logo_url": "https://media.api-sports.io/football/teams/1.png",
+    "iso": "be",
+    "fifa_rank": 9,
+    "fifa_rank_points": 1742,
     "fifa_rank_date": "2026-06-11",
-    "coach_name": "Luis de la Fuente",
-    "captain_name": "Rodri",
-    "average_age": 26.3
-  },
-  "12": {
-    "name": "Urugwaj",
-    "code": "URU",
-    "group": "H",
-    "logo_url": null,
-    "iso": "uy",
-    "fifa_rank": 16,
-    "fifa_rank_points": 1673,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Marcelo Bielsa",
-    "captain_name": "Federico Valverde",
-    "average_age": 28.3
-  },
-  "44": {
-    "name": "Uzbekistan",
-    "code": "UZB",
-    "group": "K",
-    "logo_url": null,
-    "iso": "uz",
-    "fifa_rank": 50,
-    "fifa_rank_points": 1459,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Fabio Cannavaro",
-    "captain_name": "Eldor Shomurodov",
-    "average_age": 27.8
+    "coach_name": "Rudi Garcia",
+    "captain_name": "Youri Tielemans",
+    "average_age": 27.2
   },
   "3": {
     "name": "Algieria",
@@ -454,19 +480,6 @@
     "captain_name": "Edin Dzeko",
     "average_age": 26.0
   },
-  "4": {
-    "name": "Austria",
-    "code": "AUT",
-    "group": "J",
-    "logo_url": "https://media.api-sports.io/football/teams/775.png",
-    "iso": "at",
-    "fifa_rank": 24,
-    "fifa_rank_points": 1597,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Ralf Rangnick",
-    "captain_name": "David Alaba",
-    "average_age": 28.2
-  },
   "18": {
     "name": "Turcja",
     "code": "TUR",
@@ -479,32 +492,6 @@
     "coach_name": "Vincenzo Montella",
     "captain_name": "Zeki Çelik",
     "average_age": 27.3
-  },
-  "40": {
-    "name": "Meksyk",
-    "code": "MEX",
-    "group": "A",
-    "logo_url": "https://media.api-sports.io/football/teams/16.png",
-    "iso": "mx",
-    "fifa_rank": 14,
-    "fifa_rank_points": 1687,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Javier Aguirre",
-    "captain_name": "César Montes",
-    "average_age": 27.5
-  },
-  "21": {
-    "name": "Belgia",
-    "code": "BEL",
-    "group": "G",
-    "logo_url": "https://media.api-sports.io/football/teams/1.png",
-    "iso": "be",
-    "fifa_rank": 9,
-    "fifa_rank_points": 1742,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Rudi Garcia",
-    "captain_name": "Youri Tielemans",
-    "average_age": 27.2
   },
   "47": {
     "name": "Ekwador",
@@ -558,18 +545,18 @@
     "captain_name": "Salem Al-Dawsari",
     "average_age": 28.0
   },
-  "10": {
-    "name": "Ghana",
-    "code": "GHA",
-    "group": "L",
-    "logo_url": "https://media.api-sports.io/football/teams/1504.png",
-    "iso": "gh",
-    "fifa_rank": 73,
-    "fifa_rank_points": 1347,
+  "4": {
+    "name": "Austria",
+    "code": "AUT",
+    "group": "J",
+    "logo_url": "https://media.api-sports.io/football/teams/775.png",
+    "iso": "at",
+    "fifa_rank": 24,
+    "fifa_rank_points": 1597,
     "fifa_rank_date": "2026-06-11",
-    "coach_name": "Carlos Queiroz",
-    "captain_name": "Jordan Ayew",
-    "average_age": 26.6
+    "coach_name": "Ralf Rangnick",
+    "captain_name": "David Alaba",
+    "average_age": 28.2
   },
   "30": {
     "name": "Haiti",
@@ -622,5 +609,18 @@
     "coach_name": "Bubista",
     "captain_name": "Ryan Mendes",
     "average_age": 29.4
+  },
+  "10": {
+    "name": "Ghana",
+    "code": "GHA",
+    "group": "L",
+    "logo_url": "https://media.api-sports.io/football/teams/1504.png",
+    "iso": "gh",
+    "fifa_rank": 73,
+    "fifa_rank_points": 1347,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Carlos Queiroz",
+    "captain_name": "Jordan Ayew",
+    "average_age": 26.6
   }
 }
