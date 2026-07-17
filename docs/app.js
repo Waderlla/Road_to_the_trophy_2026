@@ -804,11 +804,19 @@ function renderHeroCards(current, previous) {
 }
 
 function renderChart() {
-  const latestDay = daysByDate[latestDate];
-  if (!latestDay) return;
+  const refDate = selectedDate || latestDate;
+  const refDay = effectiveDayData(refDate);
+  if (!refDay || refDay.prediction.length === 0) return;
 
-  const topTeamIds = [...latestDay.prediction].sort((a, b) => a.rank - b.rank).slice(0, 8).map((e) => e.team_id);
-  const labels = allDates.filter((d) => d <= latestDate);
+  const headingEl = document.getElementById("chart-heading");
+  if (headingEl) {
+    headingEl.textContent = refDate === latestDate
+      ? "Historia szans na mistrzostwo - dzisiejsze TOP 8"
+      : `Historia szans na mistrzostwo - TOP 8 (${formatDatePl(refDate)})`;
+  }
+
+  const topTeamIds = [...refDay.prediction].sort((a, b) => a.rank - b.rank).slice(0, 8).map((e) => e.team_id);
+  const labels = allDates.filter((d) => d <= refDate);
 
   const datasets = topTeamIds.map((teamId, idx) => {
     const data = labels.map((dateStr) => {
