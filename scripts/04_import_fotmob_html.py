@@ -22,6 +22,7 @@ STAGE_MAP = {
     "1/2": "SF",
     "Final": "final",
     "3rd Place": "third_place",
+    "bronze": "third_place",
 }
 
 NEXT_DATA_RE = re.compile(
