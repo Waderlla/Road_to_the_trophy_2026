@@ -1,9 +1,9 @@
 name: Codzienne pobieranie danych MS 2026
 
 on:
-  schedule:
-    # co 4 godziny (0,4,8,12,16,20 UTC = 2,6,10,14,18,22 czasu polskiego)
-    - cron: "0 */4 * * *"
+  # Turniej zakonczony 2026-07-19 - automatyczny harmonogram wylaczony,
+  # zeby nie odpytywac API bez potrzeby. Mozna uruchomic recznie w razie
+  # koniecznosci (np. korekta danych po turnieju).
   workflow_dispatch: {}
 
 permissions:
