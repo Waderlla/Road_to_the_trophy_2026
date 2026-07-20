@@ -103,6 +103,19 @@
     "captain_name": "Tim Ream",
     "average_age": 26.5
   },
+  "6": {
+    "name": "Chorwacja",
+    "code": "CRO",
+    "group": "L",
+    "logo_url": "https://media.api-sports.io/football/teams/3.png",
+    "iso": "hr",
+    "fifa_rank": 11,
+    "fifa_rank_points": 1715,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Zlatko Dalic",
+    "captain_name": "Luka Modric",
+    "average_age": 27.9
+  },
   "8": {
     "name": "DR Kongo",
     "code": "COD",
@@ -337,6 +350,19 @@
     "captain_name": "Joshua Kimmich",
     "average_age": 27.7
   },
+  "51": {
+    "name": "Francja",
+    "code": "FRA",
+    "group": "I",
+    "logo_url": "https://media.api-sports.io/football/teams/2.png",
+    "iso": "fr",
+    "fifa_rank": 3,
+    "fifa_rank_points": 1871,
+    "fifa_rank_date": "2026-06-11",
+    "coach_name": "Didier Deschamps",
+    "captain_name": "Kylian Mbappé",
+    "average_age": 26.7
+  },
   "12": {
     "name": "Urugwaj",
     "code": "URU",
@@ -362,19 +388,6 @@
     "coach_name": "Fabio Cannavaro",
     "captain_name": "Eldor Shomurodov",
     "average_age": 27.8
-  },
-  "51": {
-    "name": "Francja",
-    "code": "FRA",
-    "group": "I",
-    "logo_url": "https://media.api-sports.io/football/teams/2.png",
-    "iso": "fr",
-    "fifa_rank": 3,
-    "fifa_rank_points": 1871,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Didier Deschamps",
-    "captain_name": "Kylian Mbappé",
-    "average_age": 26.7
   },
   "22": {
     "name": "Egipt",
@@ -414,19 +427,6 @@
     "coach_name": "Thomas Christiansen",
     "captain_name": "Yoel Bárcenas",
     "average_age": 30.1
-  },
-  "6": {
-    "name": "Chorwacja",
-    "code": "CRO",
-    "group": "L",
-    "logo_url": "https://media.api-sports.io/football/teams/3.png",
-    "iso": "hr",
-    "fifa_rank": 11,
-    "fifa_rank_points": 1715,
-    "fifa_rank_date": "2026-06-11",
-    "coach_name": "Zlatko Dalic",
-    "captain_name": "Luka Modric",
-    "average_age": 27.9
   },
   "4": {
     "name": "Austria",
